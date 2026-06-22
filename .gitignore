@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Python
+.venv/
+**/.venv/
+__pycache__/
+**/__pycache__/
+*.pyc
+
+# Builds
+dist/
+**/dist/
+build/
+**/build/
+
+# Env & secrets
+.env
+**/.env
+.env.local
+**/.env.local
+*.local
+
+# Azure / deploy
+.azure/
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.vscode/
+*.log
+
+# Temp test scripts
+_smoke_*.py

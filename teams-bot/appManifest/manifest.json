@@ -1,0 +1,45 @@
+{
+  "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.17/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.17",
+  "version": "1.0.0",
+  "id": "<<BOT_APP_ID>>",
+  "developer": {
+    "name": "Acme × Microsoft",
+    "websiteUrl": "https://example.com",
+    "privacyUrl": "https://example.com/privacy",
+    "termsOfUseUrl": "https://example.com/terms"
+  },
+  "icons": {
+    "color": "color.png",
+    "outline": "outline.png"
+  },
+  "name": {
+    "short": "Copilot Asistente",
+    "full": "Copilot Asistente · Acme"
+  },
+  "description": {
+    "short": "Asistente de IA para Teams con respuestas citadas.",
+    "full": "Copilot Asistente de Acme responde dudas en tiempo real y citando las fuentes oficiales. Demo conceptual con datos ficticios, impulsada por Azure OpenAI."
+  },
+  "accentColor": "#6264A7",
+  "bots": [
+    {
+      "botId": "<<BOT_APP_ID>>",
+      "scopes": ["personal", "team", "groupChat"],
+      "supportsFiles": false,
+      "isNotificationOnly": false,
+      "commandLists": [
+        {
+          "scopes": ["personal", "team", "groupChat"],
+          "commands": [
+            { "title": "Consultar Copilot", "description": "Haz una pregunta al asistente." },
+            { "title": "Ver fuentes", "description": "Solicita fuentes verificadas para la respuesta." },
+            { "title": "Siguientes pasos", "description": "Pide recomendaciones de seguimiento." }
+          ]
+        }
+      ]
+    }
+  ],
+  "permissions": ["identity", "messageTeamMembers"],
+  "validDomains": ["token.botframework.com", "*.devtunnels.ms", "*.ngrok-free.app"]
+}
