@@ -1,12 +1,14 @@
+import { useState } from 'react';
 import {
   Trophy, Crown, Flame, Star, Zap, Target, TrendingUp, TrendingDown, Minus,
-  CheckCircle2, Award, ShieldCheck, Timer,
+  CheckCircle2, Award, ShieldCheck, Timer, Swords, ListChecks, Gift, Activity, ChevronUp, Circle,
 } from 'lucide-react';
 import {
   BANKER, LEADERBOARD, BADGES, RAMO_PROGRESS, LEAGUE, WEEKLY_CHALLENGE,
-  type RankRow,
+  ACTIVITY_HEATMAP, XP_TREND, XP_TREND_DELTA, RANK_DELTA, DAILY_MISSIONS,
+  OFFICE_VS_NETWORK, NEXT_REWARDS, type RankRow,
 } from '../data/cockpit';
-import { Card, Bar, useInView } from '../lib/ui';
+import { Card, Bar, Sparkline, useInView } from '../lib/ui';
 
 const initialsOf = (n: string) =>
   n.split(' ').filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
@@ -31,6 +33,9 @@ function HeroBand({ run }: { run: boolean }) {
               <h2 className="text-2xl font-black tracking-tight">{BANKER.name}</h2>
               <span className="inline-flex items-center gap-1 rounded-full bg-accent-400/15 px-2.5 py-0.5 text-xs font-bold text-accent-400 ring-1 ring-accent-400/30">
                 <Star size={12} className="fill-accent-400" /> Nivel {BANKER.level} · {BANKER.levelName}
+              </span>
+              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-400/15 px-2.5 py-0.5 text-xs font-bold text-emerald-300 ring-1 ring-emerald-300/30">
+                <ChevronUp size={12} /> +{RANK_DELTA} puestos esta semana
               </span>
             </div>
             <div className="mt-1 text-sm text-white/60">{BANKER.office} · {BANKER.region}</div>
@@ -235,11 +240,156 @@ function RamoMixCard({ run }: { run: boolean }) {
   );
 }
 
+const HEAT_CELL = ['bg-slate-100', 'bg-primary-200', 'bg-primary-300', 'bg-primary-500', 'bg-primary-700'];
+
+const brandHex = () => {
+  if (typeof window === 'undefined') return '#0D9488';
+  const v = getComputedStyle(document.documentElement).getPropertyValue('--brand');
+  const m = v.match(/\d+/g);
+  if (!m || m.length < 3) return '#0D9488';
+  return '#' + m.slice(0, 3).map((x) => Number(x).toString(16).padStart(2, '0')).join('');
+};
+
+// ── Constancia: mapa de calor de actividad + momentum de XP ─────────────────
+function ActivityCard({ run }: { run: boolean }) {
+  return (
+    <Card className="p-5">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h3 className="flex items-center gap-2 text-sm font-bold text-slate-900"><Activity size={16} className="text-primary-600" /> Tu constancia</h3>
+          <p className="mt-0.5 text-xs text-slate-400">Acciones completadas · últimas 10 semanas</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="text-right">
+            <div className="flex items-center justify-end gap-1 text-sm font-black text-emerald-600"><TrendingUp size={13} /> +{XP_TREND_DELTA}%</div>
+            <div className="text-[10px] font-semibold uppercase text-slate-400">XP esta semana</div>
+          </div>
+          <Sparkline points={XP_TREND} color={brandHex()} w={120} h={34} />
+        </div>
+      </div>
+
+      <div className="mt-4 overflow-x-auto">
+        <div className="grid grid-flow-col gap-1" style={{ gridTemplateRows: 'repeat(7, minmax(0, 1fr))' }}>
+          {ACTIVITY_HEATMAP.map((lvl, i) => (
+            <div key={i} className={`h-3.5 w-3.5 rounded-sm ${HEAT_CELL[lvl]} ${run ? 'animate-fade-in' : ''}`} style={{ animationDelay: run ? `${i * 6}ms` : undefined }} />
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-accent-400/10 px-2.5 py-1 text-xs font-bold text-slate-700"><Flame size={13} className="text-primary-600" /> {BANKER.streakDays} días seguidos · tu mejor racha</span>
+        <div className="flex items-center gap-1 text-[10px] font-medium text-slate-400">
+          menos {HEAT_CELL.map((c, i) => <span key={i} className={`h-3 w-3 rounded-sm ${c}`} />)} más
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+// ── Tu oficina vs la red ────────────────────────────────────────────────────
+function OfficeVsNetwork({ run }: { run: boolean }) {
+  const o = OFFICE_VS_NETWORK;
+  return (
+    <Card className="p-5">
+      <h3 className="flex items-center gap-2 text-sm font-bold text-slate-900"><Swords size={16} className="text-primary-600" /> Tu oficina vs la red</h3>
+      <p className="mt-0.5 text-xs text-slate-400">{o.office} comparada con la media de la red comercial</p>
+      <div className="mt-4 space-y-4">
+        {o.metrics.map((m) => {
+          const base = m.suffix === '%' ? 100 : Math.max(m.office, m.network);
+          const ow = Math.round((m.office / base) * 100);
+          const nw = Math.round((m.network / base) * 100);
+          return (
+            <div key={m.label}>
+              <div className="mb-1 flex items-center justify-between text-xs">
+                <span className="font-semibold text-slate-700">{m.label}</span>
+                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700"><TrendingUp size={10} /> +{m.office - m.network}{m.suffix} vs red</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-12 shrink-0 text-[10px] font-bold uppercase text-primary-600">Oficina</span>
+                <div className="flex-1"><Bar value={run ? ow : 0} run={run} height={8} /></div>
+                <span className="w-10 shrink-0 text-right text-xs font-black text-slate-800">{m.office}{m.suffix}</span>
+              </div>
+              <div className="mt-1 flex items-center gap-2">
+                <span className="w-12 shrink-0 text-[10px] font-bold uppercase text-slate-400">Red</span>
+                <div className="flex-1"><Bar value={run ? nw : 0} color="#CBD5E1" run={run} height={8} /></div>
+                <span className="w-10 shrink-0 text-right text-xs font-black text-slate-400">{m.network}{m.suffix}</span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </Card>
+  );
+}
+
+// ── Misiones diarias (interactivas) ─────────────────────────────────────────
+function DailyMissions({ run }: { run: boolean }) {
+  const [done, setDone] = useState<Record<string, boolean>>(
+    Object.fromEntries(DAILY_MISSIONS.map((m) => [m.id, m.done])),
+  );
+  const total = DAILY_MISSIONS.reduce((s, m) => s + m.xp, 0);
+  const earned = DAILY_MISSIONS.filter((m) => done[m.id]).reduce((s, m) => s + m.xp, 0);
+  const pct = Math.round((earned / total) * 100);
+  return (
+    <Card className="p-5">
+      <div className="flex items-center justify-between">
+        <h3 className="flex items-center gap-2 text-sm font-bold text-slate-900"><ListChecks size={16} className="text-primary-600" /> Misiones diarias</h3>
+        <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-bold text-slate-500"><Timer size={11} /> 9h</span>
+      </div>
+      <div className="mt-3 space-y-2">
+        {DAILY_MISSIONS.map((m) => {
+          const isDone = done[m.id];
+          return (
+            <button key={m.id} onClick={() => setDone((d) => ({ ...d, [m.id]: !d[m.id] }))}
+              className={`flex w-full items-center gap-3 rounded-xl border px-3 py-2 text-left transition ${isDone ? 'border-primary-200 bg-primary-50/50' : 'border-slate-200 bg-white hover:bg-slate-50'}`}>
+              {isDone ? <CheckCircle2 size={18} className="shrink-0 text-primary-600" /> : <Circle size={18} className="shrink-0 text-slate-300" />}
+              <span className={`flex-1 text-sm font-medium ${isDone ? 'text-slate-400 line-through' : 'text-slate-700'}`}>{m.title}</span>
+              <span className={`shrink-0 text-xs font-black ${isDone ? 'text-primary-600' : 'text-slate-400'}`}>+{m.xp}</span>
+            </button>
+          );
+        })}
+      </div>
+      <div className="mt-3">
+        <div className="mb-1 flex items-center justify-between text-xs">
+          <span className="font-semibold text-slate-600">{earned} / {total} XP de hoy</span>
+          <span className="font-black text-primary-600">{pct}%</span>
+        </div>
+        <Bar value={pct} run={run} height={7} />
+      </div>
+    </Card>
+  );
+}
+
+// ── Próximas recompensas / hitos ────────────────────────────────────────────
+function NextRewards({ run }: { run: boolean }) {
+  return (
+    <Card className="p-5">
+      <h3 className="flex items-center gap-2 text-sm font-bold text-slate-900"><Gift size={16} className="text-primary-600" /> Próximas recompensas</h3>
+      <div className="mt-3 space-y-3">
+        {NEXT_REWARDS.map((r) => (
+          <div key={r.label} className="flex items-center gap-3">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-50 text-lg">{r.icon}</span>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center justify-between gap-2">
+                <span className="truncate text-sm font-bold text-slate-800">{r.label}</span>
+                <span className="shrink-0 text-[11px] font-black text-primary-600">{r.pct}%</span>
+              </div>
+              <div className="mt-1"><Bar value={r.pct} run={run} height={5} /></div>
+              <div className="mt-0.5 text-[10px] text-slate-400">{r.sub}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </Card>
+  );
+}
+
 export default function RankingView() {
   const [ref, seen] = useInView<HTMLDivElement>(0.05);
   return (
     <div ref={ref} className="space-y-6">
       <HeroBand run={seen} />
+      <ActivityCard run={seen} />
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
@@ -254,12 +404,15 @@ export default function RankingView() {
             </div>
           </Card>
 
+          <OfficeVsNetwork run={seen} />
           <BadgesGrid run={seen} />
         </div>
 
         <div className="space-y-6">
           <LeagueCard run={seen} />
+          <DailyMissions run={seen} />
           <WeeklyChallengeCard run={seen} />
+          <NextRewards run={seen} />
           <RamoMixCard run={seen} />
         </div>
       </div>

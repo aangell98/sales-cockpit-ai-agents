@@ -217,7 +217,7 @@ export const LEADERBOARD: RankRow[] = [
   { pos: 1, name: 'Diego Romero',  office: 'Salamanca 12',   points: 21640, trend: 'flat', badge: '👑' },
   { pos: 2, name: 'Nuria Vidal',   office: 'Chamberí 3',     points: 19920, trend: 'up' },
   { pos: 3, name: 'María Lozano',  office: 'Castellana 89',  points: 18430, isYou: true, trend: 'up', badge: '🔥' },
-  { pos: 4, name: 'Pablo Iglesias',office: 'Goya 45',        points: 17880, trend: 'down' },
+  { pos: 4, name: 'Pablo Durán',   office: 'Goya 45',        points: 17880, trend: 'down' },
   { pos: 5, name: 'Sara Méndez',   office: 'Retiro 8',       points: 16210, trend: 'up' },
   { pos: 6, name: 'Tomás Ferrer',  office: 'Tetuán 21',      points: 15640, trend: 'flat' },
 ];
@@ -300,6 +300,49 @@ export const WEEKLY_CHALLENGE: WeeklyChallenge = {
   rewardBadge: '⚡',
   endsInHours: 62,
 };
+
+// --- Mapa de calor de actividad (últimas 10 semanas · 0-4) ------------------
+export const ACTIVITY_HEATMAP: number[] = [
+  1, 2, 2, 1, 3, 0, 0,  2, 1, 3, 2, 2, 1, 0,  0, 2, 2, 3, 1, 0, 1,  2, 3, 2, 2, 3, 1, 0,
+  1, 2, 3, 3, 2, 0, 0,  3, 2, 3, 2, 4, 1, 0,  2, 3, 3, 4, 3, 1, 1,  3, 4, 3, 3, 4, 2, 0,
+  4, 3, 4, 4, 3, 2, 1,  4, 4, 3, 4, 4, 2, 1,
+];
+
+// --- Evolución de XP (últimas 8 semanas) y momentum -------------------------
+export const XP_TREND: number[] = [820, 940, 760, 1180, 1020, 1340, 1260, 1620];
+export const XP_TREND_DELTA = 28; // % vs. semana anterior
+export const RANK_DELTA = 2;      // puestos ganados esta semana
+
+// --- Misiones diarias ------------------------------------------------------
+export interface Mission { id: string; title: string; xp: number; done: boolean; }
+
+export const DAILY_MISSIONS: Mission[] = [
+  { id: 'm1', title: 'Ejecuta 3 Next Best Action', xp: 60, done: true },
+  { id: 'm2', title: 'Resuelve 5 consultas con Copilot', xp: 40, done: true },
+  { id: 'm3', title: 'Cierra una venta cruzada', xp: 120, done: false },
+  { id: 'm4', title: 'Recupera un cliente en riesgo de fuga', xp: 90, done: false },
+];
+
+// --- Oficina vs Red (comparativa) ------------------------------------------
+export interface VersusMetric { label: string; office: number; network: number; suffix: string; }
+
+export const OFFICE_VS_NETWORK: { office: string; metrics: VersusMetric[] } = {
+  office: 'Castellana 89',
+  metrics: [
+    { label: 'Conversión NBA', office: 34, network: 25, suffix: '%' },
+    { label: 'Retención de fugas', office: 41, network: 33, suffix: '%' },
+    { label: 'Venta cruzada / gestor', office: 18, network: 12, suffix: '' },
+  ],
+};
+
+// --- Próximas recompensas / hitos ------------------------------------------
+export interface Reward { icon: string; label: string; sub: string; pct: number; }
+
+export const NEXT_REWARDS: Reward[] = [
+  { icon: '⭐', label: 'Nivel 8 · Embajadora Élite', sub: 'Faltan 2.570 XP', pct: 88 },
+  { icon: '💎', label: 'Insignia Club Diamante', sub: 'Top 1% de la red', pct: 72 },
+  { icon: '🏅', label: 'Ascenso a División Élite', sub: 'Mantén el top 3', pct: 82 },
+];
 
 // --- FAQ / Copilot Teams (preguntas frecuentes del banquero) ---------------
 export interface Citation { source: string; ref: string; }
