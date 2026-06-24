@@ -301,11 +301,15 @@ export const WEEKLY_CHALLENGE: WeeklyChallenge = {
   endsInHours: 62,
 };
 
-// --- Mapa de calor de actividad (últimas 10 semanas · 0-4) ------------------
-export const ACTIVITY_HEATMAP: number[] = [
-  1, 2, 2, 1, 3, 0, 0,  2, 1, 3, 2, 2, 1, 0,  0, 2, 2, 3, 1, 0, 1,  2, 3, 2, 2, 3, 1, 0,
-  1, 2, 3, 3, 2, 0, 0,  3, 2, 3, 2, 4, 1, 0,  2, 3, 3, 4, 3, 1, 1,  3, 4, 3, 3, 4, 2, 0,
-  4, 3, 4, 4, 3, 2, 1,  4, 4, 3, 4, 4, 2, 1,
+// --- Actividad de la semana (acciones IA completadas por día) ---------------
+export const WEEK_ACTIONS: { day: string; actions: number }[] = [
+  { day: 'L', actions: 6 },
+  { day: 'M', actions: 4 },
+  { day: 'X', actions: 7 },
+  { day: 'J', actions: 5 },
+  { day: 'V', actions: 8 },
+  { day: 'S', actions: 3 },
+  { day: 'D', actions: 5 },
 ];
 
 // --- Evolución de XP (últimas 8 semanas) y momentum -------------------------

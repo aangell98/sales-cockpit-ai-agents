@@ -5,7 +5,7 @@ import {
 } from 'lucide-react';
 import {
   BANKER, LEADERBOARD, BADGES, RAMO_PROGRESS, LEAGUE, WEEKLY_CHALLENGE,
-  ACTIVITY_HEATMAP, XP_TREND, XP_TREND_DELTA, RANK_DELTA, DAILY_MISSIONS,
+  WEEK_ACTIONS, XP_TREND, XP_TREND_DELTA, RANK_DELTA, DAILY_MISSIONS,
   OFFICE_VS_NETWORK, NEXT_REWARDS, type RankRow,
 } from '../data/cockpit';
 import { Card, Bar, Sparkline, useInView } from '../lib/ui';
@@ -240,10 +240,6 @@ function RamoMixCard({ run }: { run: boolean }) {
   );
 }
 
-const HEAT_CELL = ['bg-slate-100', 'bg-primary-200', 'bg-primary-300', 'bg-primary-500', 'bg-primary-700'];
-const LEVEL_LABEL = ['Día sin actividad', '1-2 acciones', '3-4 acciones', '5-6 acciones', '7+ acciones'];
-const WEEKDAYS = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
-
 const brandHex = () => {
   if (typeof window === 'undefined') return '#0D9488';
   const v = getComputedStyle(document.documentElement).getPropertyValue('--brand');
@@ -252,48 +248,46 @@ const brandHex = () => {
   return '#' + m.slice(0, 3).map((x) => Number(x).toString(16).padStart(2, '0')).join('');
 };
 
-// ── Constancia: mapa de calor de actividad + momentum de XP ─────────────────
-function ActivityCard({ run }: { run: boolean }) {
+// ── Tu semana en acción: barras por día + momentum de XP ────────────────────
+function WeekActivityCard({ run }: { run: boolean }) {
+  const max = Math.max(...WEEK_ACTIONS.map((d) => d.actions));
+  const total = WEEK_ACTIONS.reduce((s, d) => s + d.actions, 0);
   return (
     <Card className="p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h3 className="flex items-center gap-2 text-sm font-bold text-slate-900"><Activity size={16} className="text-primary-600" /> Tu constancia</h3>
-          <p className="mt-0.5 text-xs text-slate-400">Cada cuadro es un día · cuanto más intenso, más acciones IA completaste</p>
+          <h3 className="flex items-center gap-2 text-sm font-bold text-slate-900"><Activity size={16} className="text-primary-600" /> Tu semana en acción</h3>
+          <p className="mt-0.5 text-xs text-slate-400">Acciones IA completadas cada día</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="text-right">
             <div className="flex items-center justify-end gap-1 text-sm font-black text-emerald-600"><TrendingUp size={13} /> +{XP_TREND_DELTA}%</div>
-            <div className="text-[10px] font-semibold uppercase text-slate-400">XP esta semana</div>
+            <div className="text-[10px] font-semibold uppercase text-slate-400">XP vs. semana previa</div>
           </div>
           <Sparkline points={XP_TREND} color={brandHex()} w={120} h={34} />
         </div>
       </div>
 
-      <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
-        <div className="grid shrink-0 gap-1 pr-0.5" style={{ gridTemplateRows: 'repeat(7, minmax(0, 1fr))' }}>
-          {WEEKDAYS.map((d, i) => (
-            <span key={i} className="flex h-3.5 items-center justify-end text-[9px] font-semibold leading-none text-slate-400">{i % 2 === 0 ? d : ''}</span>
-          ))}
-        </div>
-        <div className="grid grid-flow-col gap-1" style={{ gridTemplateRows: 'repeat(7, minmax(0, 1fr))' }}>
-          {ACTIVITY_HEATMAP.map((lvl, i) => {
-            const isToday = i === ACTIVITY_HEATMAP.length - 1;
-            return (
-              <div key={i}
-                title={`${LEVEL_LABEL[lvl]}${isToday ? ' · hoy' : ''}`}
-                className={`h-3.5 w-3.5 rounded-sm ${HEAT_CELL[lvl]} ${isToday ? 'ring-2 ring-primary-500 ring-offset-1' : ''} ${run ? 'animate-fade-in' : ''}`}
-                style={{ animationDelay: run ? `${i * 6}ms` : undefined }} />
-            );
-          })}
-        </div>
+      <div className="mt-5 flex items-end justify-between gap-2 sm:gap-4">
+        {WEEK_ACTIONS.map((d, i) => {
+          const isToday = i === WEEK_ACTIONS.length - 1;
+          const h = Math.round((d.actions / max) * 100);
+          return (
+            <div key={i} className="flex flex-1 flex-col items-center gap-1.5">
+              <span className={`text-xs font-black ${isToday ? 'text-primary-600' : 'text-slate-600'}`}>{d.actions}</span>
+              <div className="flex h-28 w-full items-end">
+                <div className={`w-full rounded-lg ${isToday ? 'bg-gradient-to-t from-primary-600 to-primary-400 shadow-sm' : 'bg-primary-200'}`}
+                  style={{ height: run ? `${h}%` : '0%', transition: `height 0.9s cubic-bezier(0.22,1,0.36,1) ${i * 0.06}s` }} />
+              </div>
+              <span className={`text-[11px] font-semibold ${isToday ? 'text-primary-600' : 'text-slate-400'}`}>{isToday ? 'Hoy' : d.day}</span>
+            </div>
+          );
+        })}
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-accent-400/10 px-2.5 py-1 text-xs font-bold text-slate-700"><Flame size={13} className="text-primary-600" /> {BANKER.streakDays} días seguidos · tu mejor racha</span>
-        <div className="flex items-center gap-1 text-[10px] font-medium text-slate-400">
-          menos actividad {HEAT_CELL.map((c, i) => <span key={i} className={`h-3 w-3 rounded-sm ${c}`} />)} más
-        </div>
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-3">
+        <span className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700"><Flame size={14} className="text-primary-600" /> {BANKER.streakDays} días de racha</span>
+        <span className="text-xs text-slate-500"><strong className="text-slate-900">{total}</strong> acciones esta semana</span>
       </div>
     </Card>
   );
@@ -402,7 +396,7 @@ export default function RankingView() {
   return (
     <div ref={ref} className="space-y-6">
       <HeroBand run={seen} />
-      <ActivityCard run={seen} />
+      <WeekActivityCard run={seen} />
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
