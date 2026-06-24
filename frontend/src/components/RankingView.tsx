@@ -241,6 +241,8 @@ function RamoMixCard({ run }: { run: boolean }) {
 }
 
 const HEAT_CELL = ['bg-slate-100', 'bg-primary-200', 'bg-primary-300', 'bg-primary-500', 'bg-primary-700'];
+const LEVEL_LABEL = ['Día sin actividad', '1-2 acciones', '3-4 acciones', '5-6 acciones', '7+ acciones'];
+const WEEKDAYS = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
 
 const brandHex = () => {
   if (typeof window === 'undefined') return '#0D9488';
@@ -257,7 +259,7 @@ function ActivityCard({ run }: { run: boolean }) {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h3 className="flex items-center gap-2 text-sm font-bold text-slate-900"><Activity size={16} className="text-primary-600" /> Tu constancia</h3>
-          <p className="mt-0.5 text-xs text-slate-400">Acciones completadas · últimas 10 semanas</p>
+          <p className="mt-0.5 text-xs text-slate-400">Cada cuadro es un día · cuanto más intenso, más acciones IA completaste</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="text-right">
@@ -268,18 +270,29 @@ function ActivityCard({ run }: { run: boolean }) {
         </div>
       </div>
 
-      <div className="mt-4 overflow-x-auto">
-        <div className="grid grid-flow-col gap-1" style={{ gridTemplateRows: 'repeat(7, minmax(0, 1fr))' }}>
-          {ACTIVITY_HEATMAP.map((lvl, i) => (
-            <div key={i} className={`h-3.5 w-3.5 rounded-sm ${HEAT_CELL[lvl]} ${run ? 'animate-fade-in' : ''}`} style={{ animationDelay: run ? `${i * 6}ms` : undefined }} />
+      <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
+        <div className="grid shrink-0 gap-1 pr-0.5" style={{ gridTemplateRows: 'repeat(7, minmax(0, 1fr))' }}>
+          {WEEKDAYS.map((d, i) => (
+            <span key={i} className="flex h-3.5 items-center justify-end text-[9px] font-semibold leading-none text-slate-400">{i % 2 === 0 ? d : ''}</span>
           ))}
+        </div>
+        <div className="grid grid-flow-col gap-1" style={{ gridTemplateRows: 'repeat(7, minmax(0, 1fr))' }}>
+          {ACTIVITY_HEATMAP.map((lvl, i) => {
+            const isToday = i === ACTIVITY_HEATMAP.length - 1;
+            return (
+              <div key={i}
+                title={`${LEVEL_LABEL[lvl]}${isToday ? ' · hoy' : ''}`}
+                className={`h-3.5 w-3.5 rounded-sm ${HEAT_CELL[lvl]} ${isToday ? 'ring-2 ring-primary-500 ring-offset-1' : ''} ${run ? 'animate-fade-in' : ''}`}
+                style={{ animationDelay: run ? `${i * 6}ms` : undefined }} />
+            );
+          })}
         </div>
       </div>
 
       <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
         <span className="inline-flex items-center gap-1.5 rounded-full bg-accent-400/10 px-2.5 py-1 text-xs font-bold text-slate-700"><Flame size={13} className="text-primary-600" /> {BANKER.streakDays} días seguidos · tu mejor racha</span>
         <div className="flex items-center gap-1 text-[10px] font-medium text-slate-400">
-          menos {HEAT_CELL.map((c, i) => <span key={i} className={`h-3 w-3 rounded-sm ${c}`} />)} más
+          menos actividad {HEAT_CELL.map((c, i) => <span key={i} className={`h-3 w-3 rounded-sm ${c}`} />)} más
         </div>
       </div>
     </Card>
