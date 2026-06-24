@@ -55,11 +55,16 @@ export function useInView<T extends HTMLElement>(threshold = 0.25): [React.RefOb
 // ---------------------------------------------------------------------------
 // Number formatting
 // ---------------------------------------------------------------------------
-export const fmtEur = (n: number) =>
-  new Intl.NumberFormat('es-ES', { maximumFractionDigits: 0 }).format(Math.round(n));
+const groupThousands = (intStr: string) => intStr.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 
-export const fmtNum = (n: number, decimals = 0) =>
-  new Intl.NumberFormat('es-ES', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }).format(n);
+export const fmtNum = (n: number, decimals = 0) => {
+  const neg = n < 0;
+  const fixed = Math.abs(n).toFixed(decimals);
+  const [int, dec] = fixed.split('.');
+  return (neg ? '-' : '') + groupThousands(int) + (dec ? ',' + dec : '');
+};
+
+export const fmtEur = (n: number) => fmtNum(Math.round(n), 0);
 
 interface AnimatedNumberProps {
   value: number; run?: boolean; prefix?: string; suffix?: string; decimals?: number; duration?: number; className?: string;

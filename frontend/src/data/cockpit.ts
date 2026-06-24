@@ -55,7 +55,7 @@ export interface Kpi {
 export const KPIS: Kpi[] = [
   { id: 'target', label: 'Objetivo mensual', value: 78, suffix: '%', delta: '+11 pts', deltaUp: true, sub: '€312k de €400k en prima', tone: 'red' },
   { id: 'commission', label: 'Comisión potencial', value: 4820, prefix: '€', delta: '+€1.240', deltaUp: true, sub: 'Pipeline IA priorizado', tone: 'emerald' },
-  { id: 'nba', label: 'Acciones IA hoy', value: 9, suffix: '', delta: '3 calientes', deltaUp: true, sub: 'Next best action', tone: 'amber' },
+  { id: 'nba', label: 'Acciones IA hoy', value: 9, suffix: '', delta: '3 prioritarias', deltaUp: true, sub: 'Next best action', tone: 'amber' },
   { id: 'conv', label: 'Conversión NBA', value: 34, suffix: '%', delta: '+9 pts', deltaUp: true, sub: 'vs. 25% media red', tone: 'violet' },
 ];
 
@@ -250,12 +250,56 @@ export interface RamoProgress {
 }
 
 export const RAMO_PROGRESS: RamoProgress[] = [
-  { ramo: 'Hogar',            sold: 24, goal: 28, color: '#0D9488' },
-  { ramo: 'Salud',           sold: 17, goal: 22, color: '#F0563A' },
-  { ramo: 'Auto',            sold: 13, goal: 20, color: '#FF8A5B' },
-  { ramo: 'Vida',            sold: 9,  goal: 16, color: '#FFB347' },
-  { ramo: 'Decesos',         sold: 6,  goal: 12, color: '#9AA7B8' },
+  { ramo: 'Hogar',            sold: 24, goal: 28, color: '#0F766E' },
+  { ramo: 'Salud',           sold: 17, goal: 22, color: '#0D9488' },
+  { ramo: 'Auto',            sold: 13, goal: 20, color: '#14B8A6' },
+  { ramo: 'Vida',            sold: 9,  goal: 16, color: '#2DD4BF' },
+  { ramo: 'Decesos',         sold: 6,  goal: 12, color: '#94A3B8' },
 ];
+
+// --- Liga / división (gamificación) ----------------------------------------
+export interface League {
+  name: string;
+  icon: string;          // emoji de la división
+  position: number;      // posición dentro de la división
+  total: number;         // gestores en la división
+  promoteTop: number;    // top N asciende
+  nextTier: string;      // división superior
+  pointsToSecure: number;// XP para asegurar el ascenso
+}
+
+export const LEAGUE: League = {
+  name: 'División Oro',
+  icon: '🥇',
+  position: 3,
+  total: 24,
+  promoteTop: 3,
+  nextTier: 'División Élite',
+  pointsToSecure: 2570,
+};
+
+// --- Reto semanal ----------------------------------------------------------
+export interface WeeklyChallenge {
+  title: string;
+  desc: string;
+  current: number;
+  goal: number;
+  unit: string;
+  rewardPts: number;
+  rewardBadge: string;   // emoji
+  endsInHours: number;
+}
+
+export const WEEKLY_CHALLENGE: WeeklyChallenge = {
+  title: 'Semana multiproducto',
+  desc: 'Cierra venta cruzada en 4 ramos distintos',
+  current: 3,
+  goal: 4,
+  unit: 'ramos',
+  rewardPts: 500,
+  rewardBadge: '⚡',
+  endsInHours: 62,
+};
 
 // --- FAQ / Copilot Teams (preguntas frecuentes del banquero) ---------------
 export interface Citation { source: string; ref: string; }

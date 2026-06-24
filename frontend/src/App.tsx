@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Sparkles, LayoutDashboard, MessagesSquare, Cpu, PlayCircle, Menu, X, Zap, Radio, Loader2 } from 'lucide-react';
+import { Sparkles, LayoutDashboard, MessagesSquare, Cpu, PlayCircle, Menu, X, Zap, Radio, Loader2, Trophy } from 'lucide-react';
 import { BRAND } from './brand';
 import { BrandLogo } from './lib/ui';
 import HeroView from './components/HeroView';
 import CockpitView from './components/CockpitView';
+import RankingView from './components/RankingView';
 import TeamsCopilot from './components/TeamsCopilot';
 import TechView from './components/TechView';
 import AutoPlayDemo from './components/AutoPlayDemo';
@@ -14,12 +15,13 @@ import LiveCopilot from './live/LiveCopilot';
 import LiveCockpit from './live/LiveCockpit';
 
 type Mode = 'intro' | 'live';
-type Tab = 'inicio' | 'cockpit' | 'copilot' | 'tecnologia';
+type Tab = 'inicio' | 'cockpit' | 'ranking' | 'copilot' | 'tecnologia';
 type LiveTab = 'cockpit' | 'copilot' | 'tecnologia';
 
 const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
   { id: 'inicio', label: 'Inicio', icon: Sparkles },
   { id: 'cockpit', label: 'Cockpit', icon: LayoutDashboard },
+  { id: 'ranking', label: 'Ranking', icon: Trophy },
   { id: 'copilot', label: 'Copilot Teams', icon: MessagesSquare },
   { id: 'tecnologia', label: 'Tecnología', icon: Cpu },
 ];
@@ -129,7 +131,8 @@ export default function App() {
         {mode === 'intro' && (
           <>
             {tab === 'inicio' && <HeroView onStartDemo={() => setDemo(true)} onExplore={() => setTab('cockpit')} />}
-            {tab === 'cockpit' && <CockpitView />}
+            {tab === 'cockpit' && <CockpitView onOpenRanking={() => setTab('ranking')} />}
+            {tab === 'ranking' && <RankingView />}
             {tab === 'copilot' && (
               <div className="space-y-5">
                 <div className="text-center">
