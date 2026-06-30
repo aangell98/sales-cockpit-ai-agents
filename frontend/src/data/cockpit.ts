@@ -59,6 +59,53 @@ export const KPIS: Kpi[] = [
   { id: 'conv', label: 'Conversión NBA', value: 34, suffix: '%', delta: '+9 pts', deltaUp: true, sub: 'vs. 25% media red', tone: 'violet' },
 ];
 
+// --- Incentivos: camino a tu bonus -----------------------------------------
+// Modela el plan de incentivos como tramos. El cockpit muestra la comisión
+// acumulada del mes y cómo la IA te lleva al siguiente tramo (bonus).
+export interface IncentiveTier { name: string; icon: string; threshold: number; bonus: number; }
+
+export const INCENTIVE: {
+  monthCommission: number;
+  tiers: IncentiveTier[];
+  pathActionIds: string[];
+} = {
+  monthCommission: 3180,
+  tiers: [
+    { name: 'Plata',    icon: '🥈', threshold: 2500, bonus: 200 },
+    { name: 'Oro',      icon: '🥇', threshold: 4000, bonus: 600 },
+    { name: 'Diamante', icon: '💎', threshold: 6000, bonus: 1500 },
+  ],
+  pathActionIds: ['nba-1', 'nba-2'],
+};
+
+// --- Tu día: plan guiado por IA --------------------------------------------
+export interface DayTask {
+  id: string;
+  time: string;
+  client: string;
+  initials: string;
+  action: string;
+  product: string;
+  channel: string;
+  commission: number;
+  draft: string;
+}
+
+export const DAY_PLAN: DayTask[] = [
+  { id: 'd1', time: '09:30', client: 'Carlos Méndez', initials: 'CM', action: 'Llamar', product: 'Hogar', channel: 'Llamada', commission: 410,
+    draft: 'Hola Carlos, enhorabuena por tu nueva vivienda 🏡. Tu hipoteca incluye condiciones preferentes en el seguro de Hogar. ¿Te llamo hoy a las 12:30 y lo vemos en 5 min?' },
+  { id: 'd2', time: '11:00', client: 'Lucía Fernández', initials: 'LF', action: 'WhatsApp', product: 'Salud', channel: 'WhatsApp Business', commission: 520,
+    draft: 'Hola Lucía, felicidades por la llegada de la peque 👶. Tenemos un plan de Salud familiar con pediatría sin esperas. ¿Te paso los detalles?' },
+  { id: 'd3', time: '12:30', client: 'Javier Ortega', initials: 'JO', action: 'Llamar', product: 'Vida', channel: 'Llamada', commission: 360,
+    draft: 'Hola Javier, con tu nueva situación un Vida-Ahorro te protege y optimiza fiscalidad. ¿Tienes 10 min esta semana para verlo?' },
+  { id: 'd4', time: '16:00', client: 'Roberto Salas', initials: 'RS', action: 'WhatsApp', product: 'Protección Pagos', channel: 'WhatsApp Business', commission: 180,
+    draft: 'Hola Roberto, tu nuevo préstamo puede ir con Protección de Pagos por muy poco al mes y te da tranquilidad. ¿Te lo cuento?' },
+  { id: 'd5', time: '17:30', client: 'Grupo Talleres Vega', initials: 'TV', action: 'Preparar reunión', product: 'Auto', channel: 'Reunión', commission: 690,
+    draft: 'Antes de la renovación de la flota repasamos un pack que mejora cobertura y precio. ¿Nos vemos mañana a las 9:30 en la oficina?' },
+];
+
+export const DAY_TIME_SAVED_H = 2;
+
 // --- Next Best Actions (clientes priorizados por IA) -----------------------
 export type Product = 'Hogar' | 'Auto' | 'Vida' | 'Salud' | 'Decesos' | 'Protección Pagos' | 'Mascotas';
 

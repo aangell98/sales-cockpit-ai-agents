@@ -241,10 +241,11 @@ function RamoMixCard({ run }: { run: boolean }) {
 }
 
 const brandHex = () => {
-  if (typeof window === 'undefined') return '#0D9488';
+  const fallback = '#64748B';
+  if (typeof window === 'undefined') return fallback;
   const v = getComputedStyle(document.documentElement).getPropertyValue('--brand');
   const m = v.match(/\d+/g);
-  if (!m || m.length < 3) return '#0D9488';
+  if (!m || m.length < 3) return fallback;
   return '#' + m.slice(0, 3).map((x) => Number(x).toString(16).padStart(2, '0')).join('');
 };
 
